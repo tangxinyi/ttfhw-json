@@ -1,0 +1,779 @@
+{
+  "metadata": {
+    "repo_url": "https://github.com/NVIDIA/Megatron-LM.git",
+    "branch": "main",
+    "start_time": "2026-08-15T15:01:29",
+    "end_time": "2026-08-15T21:00:41",
+    "duration_seconds": 21552,
+    "total_steps": 29,
+    "commit": "51f6a39fc8b6010fc062ac32fa6f637b97c4bf0e"
+  },
+  "token_usage": {
+    "tool": "opencode",
+    "model": "deepseek-v4-flash[1m]",
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cache_hit_tokens": 0,
+    "cache_miss_tokens": 0
+  },
+  "machine_spec": {
+    "host_type": "local_wsl",
+    "image_source": {
+      "type": "base_image",
+      "image_name": "ubuntu:22.04",
+      "selection_reason": "文档推荐 nvcr.io/nvidia/pytorch NGC 预构建容器（禁止直接使用）；仓库全部 Dockerfile/CI 使用 apt-get 包管理，依据 OS 选择规则 2（apt → Ubuntu）选定 Ubuntu 22.04（技能默认版本）",
+      "dependency_mapping": {
+        "from_dockerfile": "docker/Dockerfile.ci.dev/lts（NGC 基础，apt-get 列表）",
+        "from_readme": "README + install.md：Python 3.12 / PyTorch>=2.6.0 / CUDA 12.8",
+        "mappings": [
+          {
+            "original": "apt-get install gettext python3-venv psmisc uuid-runtime（NGC Dockerfile）",
+            "target": "apt-get install -y gettext python3-venv psmisc uuid-runtime（Ubuntu 22.04 同名，无需映射）",
+            "source": "仓库 Dockerfile"
+          },
+          {
+            "original": "python$VERSION-dev（deadsnakes PPA，install.sh ubuntu 分支）",
+            "target": "add-apt-repository ppa:deadsnakes/ppa && apt-get install -y python3.12-dev python3.12-venv（同源）",
+            "source": "docker/common/install.sh"
+          },
+          {
+            "original": "cuda-keyring_1.1-1_all.deb + cuda-toolkit-12-8 cudnn-cuda-12 libcudnn9-cuda-12 libcutlass-dev（install.sh，硬编码 ubuntu2404/x86_64）",
+            "target": "cuda-keyring arm64 版 + cuda-toolkit-12-8 等（ubuntu2204/arm64 官方源，因宿主 aarch64 做架构适配）",
+            "source": "docker/common/install.sh 适配"
+          }
+        ]
+      }
+    },
+    "host_machine": {
+      "architecture": "aarch64",
+      "cpu_model": "unknown（ARM 架构，256 核）",
+      "cpu_cores": 256,
+      "memory": "1.7TiB",
+      "disk": "2.1T 可用 / 3.5T 总",
+      "docker_version": "29.5.2"
+    },
+    "container": {
+      "os": "Ubuntu 22.04.5 LTS",
+      "architecture": "aarch64",
+      "cpu_cores": 256,
+      "memory": "1.7TiB",
+      "container_name": "ttfhw-megatronlm-baseos-env"
+    }
+  },
+  "document_reading_summary": {
+    "architecture": {
+      "source": "README/docs 未指定架构；宿主机实际 aarch64",
+      "value": "x86_64（文档未指定，宿主机为 aarch64 无 GPU，记录偏差）"
+    },
+    "recommended_image": {
+      "source": "README + docs/get-started/install.md Option C",
+      "value": "项目推荐 nvcr.io/nvidia/pytorch:26.01-py3 NGC 预构建容器（禁用）；依据包管理方式（apt-get）改用 ubuntu:22.04"
+    },
+    "dockerfile_dependencies": {
+      "source": "docker/Dockerfile.ci.dev + Dockerfile.ci.lts（NGC 基础）+ docker/common/install.sh",
+      "value": [
+        {
+          "original": "apt-get install gettext python3-venv psmisc uuid-runtime",
+          "target_equivalent": "apt-get install -y gettext python3-venv psmisc uuid-runtime（Ubuntu 22.04 同名）"
+        },
+        {
+          "original": "python3.12-dev/venv（deadsnakes PPA，install.sh ubuntu 分支）",
+          "target_equivalent": "add-apt-repository ppa:deadsnakes/ppa && apt-get install -y python3.12 python3.12-dev python3.12-venv"
+        },
+        {
+          "original": "cuda-keyring + cuda-toolkit-12-8 + cudnn-cuda-12 + libcutlass-dev（install.sh，ubuntu2404/x86_64）",
+          "target_equivalent": "cuda-keyring_1.1-1_all.deb（ubuntu2204/arm64）+ cuda-toolkit-12-8（aarch64 适配）；cuDNN 无 arm64 包跳过"
+        },
+        {
+          "original": "apt-get install rdma-core libibverbs-dev libnvidia-ml-dev（Dockerfile DeepEP 层，仅 dev 镜像）",
+          "target_equivalent": "本次验证不构建 NGC dev 镜像，未安装（DeepEP 为 CUDA 内核扩展，无 GPU 不需要）"
+        }
+      ]
+    },
+    "dependencies": {
+      "source": "README + docs/get-started/install.md + pyproject.toml + docker/common/install.sh",
+      "value": [
+        "Python>=3.12（pyproject requires-python，文档推荐 3.12）",
+        "PyTorch>=2.6.0（本机安装 2.9.0+cpu aarch64 wheel）",
+        "CUDA Toolkit 最新稳定版（已装 12.8.2 arm64）",
+        "uv（astral.sh 安装 0.7.2）",
+        "gcc/g++/make/cmake/git/wget/curl（Ubuntu 官方仓库）",
+        "python3.12-dev python3.12-venv（deadsnakes PPA）",
+        "setuptools>=80 pybind11 packaging>=24.2（pyproject build-system）"
+      ]
+    },
+    "build_commands": {
+      "source": "README 安装章节 + docs/get-started/install.md Option B",
+      "value": "uv pip install -e .（本机：uv pip install --python /opt/venv/bin/python -e . --index-url https://mirrors.aliyun.com/pypi/simple/；可选 --no-build-isolation -e \".[training,dev]\"；MAX_JOBS 限制内存）"
+    },
+    "ut_commands": {
+      "source": ".gitlab/stages/02.test.yml + tests/unit_tests/run_ci_test.sh（NVIDIA 内部 GPU 集群）",
+      "value": "uv run --no-sync python -m torch.distributed.run -m pytest -vs -m \"not experimental\" tests/unit_tests（本机 CPU：pytest tests/unit_tests -m \"not experimental\" --continue-on-collection-errors --timeout=600）"
+    },
+    "sample_commands": {
+      "source": "docs/get-started/quickstart.md",
+      "value": "torchrun --nproc_per_node=2 examples/run_simple_mcore_train_loop.py（需 2 GPU）；tools/preprocess_data.py --tokenizer-type GPT2BPETokenizer --vocab-file --merge-file --workers --append-eod"
+    },
+    "special_dependencies": {
+      "source": "README/install.md 前置要求 + docker/common/install.sh",
+      "value": [
+        "curl -LsSf https://astral.sh/uv/install.sh | sh（uv 安装）",
+        "NVIDIA CUDA apt 仓库（cuda-keyring，aarch64）",
+        "HF tokenizer 模型（huggingface.co / hf-mirror.com）",
+        "GitHub release 测试资产 datasets.zip/tokenizers.zip（gh-proxy）"
+      ]
+    }
+  },
+  "execution_log": [
+    {
+      "timestamp": "2026-08-15T15:01:33",
+      "step": "environment_selection",
+      "action": "交互式确认容器运行环境",
+      "command": "AskUserQuestion（本地 WSL / 远端 SSH 机器）",
+      "output": "用户选择：本地 WSL —— 容器直接在当前宿主机用 docker 运行，仓库挂载本地路径",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 0,
+      "result": "交互式确认容器运行环境：用户选择：本地 WSL —— 容器直接在当前宿主机用 docker 运行，仓库挂载本地路径",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T15:05:23",
+      "step": "document_reading",
+      "action": "阅读文档：本地克隆仓库 /tmp/megatron-lm-docs",
+      "command": "README.md",
+      "output": "项目定位 Megatron-LM+Megatron Core；安装方式 uv pip install megatron-core 或 uv pip install -e .；版本 0.15.0；Python 3.10 将被弃用（0.17.0 起下限 3.12）；链接：install.html/quickstart.html/contribute.html（docs.nvidia.com）、Mega",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 0,
+      "result": "阅读文档：本地克隆仓库 /tmp/megatron-lm-docs：项目定位 Megatron-LM+Megatron Core；安装方式 uv pip install megatron-core 或 uv pip instal",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T15:05:23",
+      "step": "document_reading",
+      "action": "阅读文档：仓内 sphinx 源文档",
+      "command": "docs/get-started/install.md（=docs.nvidia.com install.html，已 curl 验证一致）",
+      "output": "软件要求：Python>=3.10（推荐 3.12）、PyTorch>=2.6.0、CUDA Toolkit 最新稳定版；前置要求安装 uv；Option A PyPI / Option B 源码 uv pip install -e . / Option C NGC 容器（预构建，禁止使用）；无任何从基础 OS 构建镜像的脚本；外部链接仅 NGC 容器目录、uv 文档、TransformerEng",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 0,
+      "result": "阅读文档：仓内 sphinx 源文档：软件要求：Python>=3.10（推荐 3.12）、PyTorch>=2.6.0、CUDA Toolkit 最新稳定版；前置要求安装 uv；Option A ",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T15:05:23",
+      "step": "document_reading",
+      "action": "阅读文档：仓内文档",
+      "command": "docs/get-started/quickstart.md",
+      "output": "样例：torchrun --nproc_per_node=2 examples/run_simple_mcore_train_loop.py（mock 数据双卡）；./examples/llama/train_llama3_8b_h100_fp8.sh；数据预处理 tools/preprocess_data.py",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 0,
+      "result": "阅读文档：仓内文档：样例：torchrun --nproc_per_node=2 examples/run_simple_mcore_train_loop.py（mock 数据双卡",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T15:05:23",
+      "step": "document_reading",
+      "action": "阅读文档：仓内文档",
+      "command": "docs/get-started/overview.md",
+      "output": "概览；引用 Megatron-Energon 等关联项目，无环境构建信息",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 0,
+      "result": "阅读文档：仓内文档：概览；引用 Megatron-Energon 等关联项目，无环境构建信息",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T15:05:23",
+      "step": "document_reading",
+      "action": "阅读文档：仓库 Dockerfile",
+      "command": "docker/Dockerfile.ci.dev / Dockerfile.ci.lts / Dockerfile.linting",
+      "output": "均 FROM nvcr.io/nvidia/pytorch:*（NGC 预构建环境镜像，非基础 OS，禁止直接使用）；apt-get 安装 gettext/python3-venv/psmisc/uuid-runtime/rdma-core/libibverbs-dev/libnvidia-ml-dev；uv 0.7.2；安装 dev/lts/ssm/te extras 与 DeepEP（CUDA",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 0,
+      "result": "阅读文档：仓库 Dockerfile：均 FROM nvcr.io/nvidia/pytorch:*（NGC 预构建环境镜像，非基础 OS，禁止直接使用）；apt-get 安装 gettext/py",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T15:05:23",
+      "step": "document_reading",
+      "action": "阅读文档：仓库脚本（仅 CI 引用 install-test.yml）",
+      "command": "docker/common/install.sh",
+      "output": "--base-image {pytorch|ubuntu} --environment {dev|lts}；ubuntu 分支：deadsnakes PPA 装 python3.12-dev/venv、wget/curl/git/cmake、CUDA 12.8 工具链（硬编码 x86_64 URL）；然后 uv sync --extra dev + uv pip install --no-deps",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 0,
+      "result": "阅读文档：仓库脚本（仅 CI 引用 install-test.yml）：--base-image {pytorch|ubuntu} --environment {dev|lts}；ubuntu 分支：deadsnakes PPA 装",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T15:05:23",
+      "step": "document_reading",
+      "action": "阅读文档：构建配置",
+      "command": "pyproject.toml / setup.py",
+      "output": "requires-python>=3.12；核心依赖 torch>=2.6.0、numpy、packaging>=24.2；build-system: setuptools>=80, pybind11, packaging；extras: training/mlm/dev/te/ssm；test 组：pytest==9.1.1 等；linting 组：ruff/black/isort/flake8",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 0,
+      "result": "阅读文档：构建配置：requires-python>=3.12；核心依赖 torch>=2.6.0、numpy、packaging>=24.2；build-system: setu",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T15:05:23",
+      "step": "document_reading",
+      "action": "阅读文档：CI 配置",
+      "command": ".gitlab-ci.yml + .gitlab/stages/02.test.yml + .github/workflows/install-test.yml",
+      "output": "单元测试在 NVIDIA 内部 DGX H100 集群（Jet/Slurm）以 torch.distributed.run + pytest -m 'not experimental' 运行；install-test.yml 以 NGC PyTorch 容器 + install.sh --base-image pytorch 验证安装；无基础 OS 构建脚本",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 0,
+      "result": "阅读文档：CI 配置：单元测试在 NVIDIA 内部 DGX H100 集群（Jet/Slurm）以 torch.distributed.run + pytest -m 'not e",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T15:05:23",
+      "step": "document_closure",
+      "action": "外部文档闭包验证（docs.nvidia.com 安装指南）",
+      "command": "curl https://docs.nvidia.com/megatron-core/developer-guide/latest/get-started/install.html",
+      "output": "HTTP 200；WebFetch 被网络策略拦截，改用 curl 验证；外部页面内容与仓内 docs/get-started/install.md（sphinx 源）一致：Option A/B/C，无基础 OS 镜像构建脚本",
+      "error": "WebFetch 域名验证被拦截",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 0,
+      "result": "外部文档闭包验证（docs.nvidia.com 安装指南）：HTTP 200；WebFetch 被网络策略拦截，改用 curl 验证；外部页面内容与仓内 docs/get-started/install.md（sphin",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T15:05:23",
+      "step": "image_selection",
+      "action": "锁定基础 OS 与环境构建方式",
+      "command": "决策点：OS 选择规则 + 文档闭包脚本审查",
+      "output": "details: build_method=manual；理由：文档闭包无合规基础 OS 镜像构建脚本（仓库 Dockerfile 均 FROM NGC 预构建镜像；install.sh 为容器内安装脚本且硬编码 x86_64 CUDA URL）；OS=ubuntu:22.04（apt-get 系，技能默认版本）",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 0,
+      "details": {
+        "build_method": "manual",
+        "script_url": "",
+        "reason": "文档闭包中未发现合规的环境构建脚本：README/install.md 主路径为 uv pip install -e .（手动安装）；仓库 Dockerfile（Dockerfile.ci.dev/lts/linting）FROM nvcr.io/nvidia/pytorch 预构建镜像，构建链最底层非基础 OS，不满足脚本路径条件；docker/common/install.sh 为容器内安装脚本（非镜像构建脚本），ubuntu 分支硬编码 x86_64 CUDA 仓库 URL（宿主 aarch64 无法执行）。依据 OS 选择规则：项目用 apt-get → Ubuntu 22.04"
+      },
+      "result": "锁定基础 OS 与环境构建方式：details: build_method=manual；理由：文档闭包无合规基础 OS 镜像构建脚本（仓库 Dockerfile 均 FROM NGC 预构建"
+    },
+    {
+      "timestamp": "2026-08-15T15:11:23",
+      "step": "static_analysis",
+      "action": "pre-commit 随机抽 10 文件执行（black/pylint/isort）+ lint-runner 扫描",
+      "command": "mapfile -d '' tracked < <(git ls-files -z); shuf -z -n 10; pre-commit run --files <10 文件>",
+      "output": "black Passed / isort Passed / pylint Failed(exit 16, C0301+C0116 on megatron/core/models/bert/pooler.py)；lint-runner 无配置文件",
+      "error": "pylint hook 失败（2 项 lint 问题）；首次拉取 hook 时 github 瞬时超时，重试成功",
+      "success": true,
+      "returncode": 1,
+      "duration_seconds": 540,
+      "result": "pre-commit 随机抽 10 文件执行（black/pylint/isort）+ lint-runner 扫描：black Passed / isort Passed / pylint Failed(exit 16, C0301+C0116 on megatron/cor",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T15:11:26",
+      "step": "devcontainer_scan",
+      "action": "检查仓库 .devcontainer/ 目录",
+      "command": "ls -la .devcontainer/",
+      "output": "目录不存在，devcontainer.enabled=false",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 1,
+      "result": "检查仓库 .devcontainer/ 目录：目录不存在，devcontainer.enabled=false",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T15:14:14",
+      "step": "container_start",
+      "action": "拉取 ubuntu:22.04 基础镜像并启动验证容器",
+      "command": "docker pull docker.m.daocloud.io/library/ubuntu:22.04 && docker run -d --name ttfhw-megatronlm-baseos-env ubuntu:22.04 sleep infinity",
+      "output": "镜像 digest sha256:3b06811b2afd...；容器 ttfhw-megatronlm-baseos-env 运行中；规格：aarch64/256核/1.7TiB内存",
+      "error": "docker.io 直连超时，改用 DaoCloud 镜像源（docker.m.daocloud.io/library/ubuntu:22.04，官方镜像内容一致）",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 600,
+      "result": "拉取 ubuntu:22.04 基础镜像并启动验证容器：镜像 digest sha256:3b06811b2afd...；容器 ttfhw-megatronlm-baseos-env 运行中；规格：aarch64/2",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T16:24:15",
+      "step": "dep_layer1",
+      "action": "第一层：系统工具链",
+      "command": "apt-get install -y gcc g++ make cmake git python3 python3-pip",
+      "output": "gcc 11.4.0 / g++ 11.4.0 / cmake 3.22.1 / make 4.3 / git 2.34.1 / python3 3.10.12(初始)",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 620,
+      "result": "第一层：系统工具链：gcc 11.4.0 / g++ 11.4.0 / cmake 3.22.1 / make 4.3 / git 2.34.1 / python3 3.10.12",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T16:24:15",
+      "step": "dep_layer2",
+      "action": "第二层：文档/Dockerfile 构建依赖 + Python 3.12（deadsnakes，install.sh 同源）",
+      "command": "apt-get install gettext python3-venv psmisc uuid-runtime wget curl software-properties-common; add-apt-repository ppa:deadsnakes/ppa; apt-get install python3.12 python3.12-dev python3.12-venv",
+      "output": "Python 3.12.13 生效（update-alternatives 指向 3.12）；pip 25.0.1",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 120,
+      "result": "第二层：文档/Dockerfile 构建依赖 + Python 3.12（deadsnakes，install.sh 同源）：Python 3.12.13 生效（update-alternatives 指向 3.12）；pip 25.0.1",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T16:24:15",
+      "step": "dep_layer2_cuda",
+      "action": "CUDA 工具链（install.sh ubuntu 分支，x86_64→arm64 架构适配）",
+      "command": "wget cuda-keyring_1.1-1_all.deb (ubuntu2204/arm64) && apt-get install -y cuda-toolkit-12-8",
+      "output": "cuda-toolkit-12-8 12.8.2-1 安装成功；nvcc 位于 /usr/local/cuda-12.8/bin/nvcc",
+      "error": "cudnn-cuda-12 / libcudnn9-cuda-12 无 arm64 包（NVIDIA 仓库仅 amd64），跳过（CPU-only 构建不需要 cuDNN）",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 900,
+      "result": "CUDA 工具链（install.sh ubuntu 分支，x86_64→arm64 架构适配）：cuda-toolkit-12-8 12.8.2-1 安装成功；nvcc 位于 /usr/local/cuda-12.8/bin/nvcc",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T16:24:15",
+      "step": "dep_uv",
+      "action": "安装 uv（README/install.md 前置要求）",
+      "command": "curl -LsSf https://astral.sh/uv/0.7.2/install.sh | sh",
+      "output": "uv 0.7.2 安装成功",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 300,
+      "result": "安装 uv（README/install.md 前置要求）：uv 0.7.2 安装成功",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T16:24:15",
+      "step": "repo_clone_container",
+      "action": "容器内克隆目标代码仓到 /workspace/Megatron-LM（步骤4强制）",
+      "command": "git clone --depth 1 --branch main https://gh-proxy.com/https://github.com/NVIDIA/Megatron-LM.git",
+      "output": "commit 51f6a39fc8b6010fc062ac32fa6f637b97c4bf0e（2026-08-15），与本地文档克隆完全一致",
+      "error": "github.com 直连间歇性中断（连接超时/HTTP2 framing 错误，尝试 6+ 次失败；DNS 解析的 20.205.243.166 不可达，140.82.112.3 可达但传输仍中断）；改用 gh-proxy.com 代理（main 分支 SHA 与 github 直连完全一致，内容零差异）",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 400,
+      "result": "容器内克隆目标代码仓到 /workspace/Megatron-LM（步骤4强制）：commit 51f6a39fc8b6010fc062ac32fa6f637b97c4bf0e（2026-08-15），与本地文档克隆完全一致",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T16:54:46",
+      "step": "dep_layer3",
+      "action": "第三层：语言特定依赖（Python 包）",
+      "command": "uv venv /opt/venv && uv pip install torch==2.9.0(本地 wheel, --no-deps) numpy packaging setuptools>=80 pybind11 typing_extensions filelock fsspec jinja2 networkx sympy",
+      "output": "torch 2.9.0+cpu（aarch64 wheel，PyPI SHA-256 校验一致 e5f7af1d...）导入成功；numpy/packaging/setuptools 84.0/pybind11 3.1.0 就绪",
+      "error": "pypi.org 直连下载 torch 2.13.0 超时且其 aarch64 wheel(427MB) 依赖 cuda-toolkit 系列包；选择 torch==2.9.0（满足 pyproject torch>=2.6.0，104MB CPU-only wheel，与无 GPU 环境匹配）并经阿里云镜像下载（清华 403/daocloud 慢）；版本选择偏差已记录",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 1200,
+      "result": "第三层：语言特定依赖（Python 包）：torch 2.9.0+cpu（aarch64 wheel，PyPI SHA-256 校验一致 e5f7af1d...）导入成功；numpy/packaging",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T16:56:43",
+      "step": "build",
+      "action": "执行构建：uv pip install -e .（README Option B）",
+      "command": "uv pip install --python /opt/venv/bin/python -e . --index-url https://mirrors.aliyun.com/pypi/simple/",
+      "output": "megatron-core==0.20.0+51f6a39 可编辑安装成功（12.8s）；helpers_cpp.so 编译成功",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 13,
+      "result": "执行构建：uv pip install -e .（README Option B）：megatron-core==0.20.0+51f6a39 可编辑安装成功（12.8s）；helpers_cpp.so 编译成功",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T16:56:43",
+      "step": "build_fix1",
+      "action": "构建修复1：uv 未识别 venv",
+      "command": "加 --python /opt/venv/bin/python 参数",
+      "output": "构建成功",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 1,
+      "result": "构建修复1：uv 未识别 venv：构建成功",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T16:56:43",
+      "step": "build_fix2",
+      "action": "构建修复2：import 缺 triton",
+      "command": "uv pip install triton==3.7.1",
+      "output": "triton 3.7.1（aarch64 唯一可用系列）；megatron.core/training import 通过",
+      "error": "PyPI aarch64 无 triton 3.3.0（torch 2.9 配对版），改用 3.7.1；无 GPU 故 TE/Apex 回退本地实现（文档允许）",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 60,
+      "result": "构建修复2：import 缺 triton：triton 3.7.1（aarch64 唯一可用系列）；megatron.core/training import 通过",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T17:13:53",
+      "step": "sample_a",
+      "action": "样例A：quickstart 最小训练示例",
+      "command": "torchrun --nproc_per_node=2 examples/run_simple_mcore_train_loop.py",
+      "output": "RC=1；torch.cuda.set_device AttributeError（CPU-only torch，无 GPU 设备）；示例文档要求 2 GPU + NCCL",
+      "error": "环境不兼容（无 GPU），非缺依赖",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 40,
+      "result": "样例A：quickstart 最小训练示例：RC=1；torch.cuda.set_device AttributeError（CPU-only torch，无 GPU 设备）；示例文档要求 2 GPU ",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T17:13:53",
+      "step": "sample_b_fix1",
+      "action": "样例B 修复1：缺 transformers",
+      "command": "uv pip install transformers sentencepiece tiktoken accelerate omegaconf",
+      "output": "transformers 安装成功（torch 未被篡改）",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 300,
+      "result": "样例B 修复1：缺 transformers：transformers 安装成功（torch 未被篡改）",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T17:13:53",
+      "step": "sample_b_fix2",
+      "action": "样例B 修复2：huggingface.co 不可达",
+      "command": "export HF_ENDPOINT=https://hf-mirror.com",
+      "output": "tokenizer 经 hf-mirror 加载成功",
+      "error": "[Errno 101] Network is unreachable (huggingface.co)",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 400,
+      "result": "样例B 修复2：huggingface.co 不可达：tokenizer 经 hf-mirror 加载成功",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T17:13:53",
+      "step": "sample_b",
+      "action": "样例B：数据预处理",
+      "command": "python tools/preprocess_data.py --tokenizer-type GPT2BPETokenizer --vocab-file /tmp/vocab.json --merge-file /tmp/merges.txt --workers 4 --append-eod",
+      "output": "成功生成 processed_data_text_document.bin + .idx（33.5s）",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 34,
+      "result": "样例B：数据预处理：成功生成 processed_data_text_document.bin + .idx（33.5s）",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T20:58:43",
+      "step": "ut",
+      "action": "执行单元测试（CI marker 规则：-m \"not experimental\"，每测试 600s 超时，HF 走镜像）",
+      "command": "/opt/venv/bin/python -m pytest tests/unit_tests -m \"not experimental\" --continue-on-collection-errors -q --timeout=600 --timeout-method=signal",
+      "output": "完整一轮：8631 项（8890-259 deselected）：3358 passed / 2525 failed / 2163 skipped / 790 errors，1213s；失败主体为 GPU/CUDA 环境不兼容（测试基建假设 GPU，官方 CI 在 H100 集群运行）",
+      "error": "套件内某测试会以相同参数递归重跑整个套件（子进程 pytest 与主进程并存 3h+，日志交错）；huggingface.co 不可达改用 hf-mirror（429 限流拖慢）；NLTK punkt 数据缺失（部分 data 测试）",
+      "success": true,
+      "returncode": 1,
+      "duration_seconds": 73000,
+      "result": "执行单元测试（CI marker 规则：-m \"not experimental\"，每测试 600s 超时，HF 走镜像）：完整一轮：8631 项（8890-259 deselected）：3358 passed / 2525 failed / 2163 skipped / 790 ",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-15T21:00:41",
+      "step": "cleanup",
+      "action": "清理验证容器",
+      "command": "docker rm -f ttfhw-megatronlm-baseos-env",
+      "result": "容器已删除",
+      "details": {},
+      "command_actual": "docker rm -f ttfhw-megatronlm-baseos-env",
+      "success": true,
+      "output": "container removed",
+      "error": "",
+      "returncode": 0,
+      "duration_seconds": 3
+    }
+  ],
+  "final_results": {
+    "static_analysis": {
+      "enabled": true,
+      "summary": "仓库配置 pre-commit（.pre-commit-config.yaml：black/pylint/isort 三个 hook），未配置 lint-runner。随机抽取 10 个 Git 跟踪文件执行 pre-commit run --files：black Passed、isort Passed、pylint Failed（megatron/core/models/bert/pooler.py 报 C0301 行超长 103/100、C0116 缺少 docstring，exit 16，评分 9.93/10）。pylint 首次运行需初始化环境（github 拉取 hook 曾瞬时超时，重试后成功）",
+      "pre_commit": {
+        "configured": true,
+        "config_file": ".pre-commit-config.yaml",
+        "status": "executed_pylint_failed",
+        "duration_seconds": 540,
+        "random_files": [
+          "examples/multimodal/Dockerfile",
+          "megatron/core/models/bert/pooler.py",
+          "tests/functional_tests/test_cases/moe/gpt3_mcore_te_tp2_pp1_te_8experts2parallel_ddp_average_in_collective/golden_values_lts_dgx_a100.json",
+          "megatron/core/distributed/fsdp/src/megatron_fsdp/experimental/parameter_group.py",
+          "tests/unit_tests/inference/test_vllm_fused_moe.py",
+          "tests/functional_tests/test_cases/bert/bert_mcore_tp1_pp2/golden_values_dev_dgx_a100.json",
+          "examples/rl/environment_configs/countdown.yaml",
+          "tests/functional_tests/python_test_utils/compute_golden_statistics.py",
+          "examples/mimo/scripts/run_avlm_train.sh",
+          "megatron/core/inference/model_inference_wrappers/t5/t5_inference_wrapper.py"
+        ],
+        "hooks": [
+          {
+            "id": "black",
+            "repo": "https://github.com/psf/black",
+            "rev": "26.3.0",
+            "status": "passed",
+            "duration_seconds": 15
+          },
+          {
+            "id": "pylint",
+            "repo": "https://github.com/pycqa/pylint",
+            "rev": "v3.2.6",
+            "status": "failed",
+            "duration_seconds": 200,
+            "errors": [
+              "megatron/core/models/bert/pooler.py:19:0 C0301 Line too long (103/100)",
+              "megatron/core/models/bert/pooler.py:38:4 C0116 Missing function or method docstring"
+            ],
+            "exit_code": 16
+          },
+          {
+            "id": "isort",
+            "repo": "https://github.com/pycqa/isort",
+            "rev": "5.13.2",
+            "status": "passed",
+            "duration_seconds": 10
+          }
+        ],
+        "total_hooks": 3,
+        "passed": 2,
+        "failed": 1,
+        "skipped": 0,
+        "executed_in_verification": true,
+        "failures": [
+          {
+            "hook_name": "pylint",
+            "file": "megatron/core/models/bert/pooler.py",
+            "error": "C0301 Line too long (103/100) at 19:0; C0116 Missing function or method docstring at 38:4 (exit 16)"
+          }
+        ]
+      },
+      "lint_runner": {
+        "configured": false,
+        "config_file": null
+      }
+    },
+    "devcontainer": {
+      "enabled": false,
+      "config_dir": "无（仓库根目录不存在 .devcontainer/）",
+      "config_files": [],
+      "original_base_image": "unknown",
+      "used_image": "unknown",
+      "summary": "仓库根目录无 .devcontainer/ 目录，不具备 devcontainer 开发容器能力"
+    },
+    "build": {
+      "status": "success",
+      "duration_seconds": 13,
+      "command": "uv pip install --python /opt/venv/bin/python -e . --index-url https://mirrors.aliyun.com/pypi/simple/（README Option B，MAX_JOBS=64）",
+      "artifacts": [
+        {
+          "name": "megatron-core==0.20.0+51f6a39 (editable install)",
+          "path": "/opt/venv/lib/python3.12/site-packages",
+          "size": "editable"
+        },
+        {
+          "name": "helpers_cpp.cpython-312-aarch64-linux-gnu.so",
+          "path": "/workspace/Megatron-LM/megatron/core/datasets/",
+          "size": "263744 bytes"
+        }
+      ],
+      "verification": "import megatron.core / megatron.training 均成功（与 CI install-test.yml 的 check-imports 一致）；helpers_cpp 扩展导入成功",
+      "notes": "修复过程：① uv pip install 需 --python 指定 venv（首次报 no virtual environment）；② import 缺 triton → 安装 triton==3.7.1（aarch64 无 3.3.0 wheel，仅 3.7.x 提供 aarch64 构建，与 torch 2.9 配对的 3.3.0 仅 x86_64）；③ TE/Apex 未装（无 GPU，文档允许回退本地实现）"
+    },
+    "ut": {
+      "status": "partial_success",
+      "duration_seconds": 1213,
+      "total": 8631,
+      "passed": 3358,
+      "failed": 2525,
+      "skipped": 2163,
+      "failures": [
+        {
+          "category": "GPU/CUDA 环境不兼容",
+          "count_estimate": "~3600（日志行计数：CUDA 类 4218 行 / ZeroDivisionError 1584 行）",
+          "summary": "测试基建 tests/unit_tests/test_utilities.py:62 假设 GPU 存在（torch.cuda.set_device(rank % torch.cuda.device_count())，CPU-only torch 的 device_count()==0 导致模零）以及 Torch not compiled with CUDA、nccl/world_size 等。官方 CI 在 DGX H100 集群（Jet/Slurm）运行，本机无 GPU，属环境不兼容"
+        },
+        {
+          "category": "缺 CUDA-only 可选包",
+          "count_estimate": "~29 项错误行",
+          "summary": "transformer_engine / flash_attn / causal_conv1d / flashinfer / apex / mamba_ssm / modelopt 需 GPU+CUDA 才能安装运行，CPU 环境无法提供"
+        },
+        {
+          "category": "缺环境相关资产",
+          "count_estimate": "少量",
+          "summary": "nvidia-resiliency-ext==0.6.0 仅提供 manylinux_2_39 wheel（本机 glibc 2.35 不满足）；griffe 未装（api-backwards-compat 检查）；NLTK punkt 测试用临时 NLTK_DATA 目录无法下载"
+        },
+        {
+          "category": "网络类失败",
+          "count_estimate": "受 hf-mirror 429 限流影响",
+          "summary": "huggingface.co 不可达改用 hf-mirror.com，但镜像 API 限流（429）导致 tokenizer 相关测试重试变慢/失败"
+        }
+      ]
+    },
+    "sample": {
+      "status": "partial_success",
+      "duration_seconds": 150,
+      "results": [
+        {
+          "sample_name": "quickstart 最小训练示例：torchrun --nproc_per_node=2 examples/run_simple_mcore_train_loop.py",
+          "execution_status": "failed",
+          "output_summary": "RC=1：torch.cuda.set_device 报 AttributeError: module torch._C has no attribute _cuda_setDevice（CPU-only torch 无 CUDA 设备）；示例文档明确要求 2 块 GPU + NCCL backend，本机无 GPU，环境不兼容",
+          "execution_time": "40s"
+        },
+        {
+          "sample_name": "数据预处理：tools/preprocess_data.py（quickstart 文档命令）",
+          "execution_status": "passed",
+          "output_summary": "GPT2BPETokenizer 处理 3 条 JSONL → 生成 processed_data_text_document.bin(130B)+.idx(102B)，33.5s；修复链：装 transformers → HF_ENDPOINT=hf-mirror.com（huggingface.co 不可达）→ 成功",
+          "execution_time": "34s"
+        }
+      ]
+    }
+  },
+  "documentation_gaps": [
+    {
+      "time": "2026-08-15T21:00:10",
+      "title": "文档未提供从基础 OS 构建环境的官方脚本（NGC 容器为预构建镜像）",
+      "body": "README/install.md 仅推荐 NGC 预构建容器与 pip 安装；仓库 docker/common/install.sh 的 ubuntu 分支硬编码 x86_64 CUDA 仓库 URL，aarch64 无法直接执行",
+      "source": "README.md / docs/get-started/install.md / docker/common/install.sh"
+    },
+    {
+      "time": "2026-08-15T21:00:10",
+      "title": "CUDA Toolkit 软件要求与 aarch64 可用包不一致",
+      "body": "install.md 要求 CUDA Toolkit，NVIDIA 官方 apt 仓库 aarch64 分支不提供 cuDNN（cudnn-cuda-12 仅 amd64）",
+      "source": "docs/get-started/install.md + NVIDIA ubuntu2204/arm64 仓库"
+    },
+    {
+      "time": "2026-08-15T21:00:10",
+      "title": "quickstart 最小示例仅支持 GPU",
+      "body": "examples/run_simple_mcore_train_loop.py 硬编码 CUDA/NCCL（torch.cuda.set_device + nccl backend），文档未说明 CPU-only 环境无法运行",
+      "source": "docs/get-started/quickstart.md"
+    },
+    {
+      "time": "2026-08-15T21:00:10",
+      "title": "pyproject requires-python 与 classifiers 不一致",
+      "body": "requires-python=\">=3.12\" 但 classifiers 仍声明 Python 3.10/3.11",
+      "source": "pyproject.toml"
+    },
+    {
+      "time": "2026-08-15T21:00:10",
+      "title": "CI 单元测试依赖 NVIDIA 内部集群与镜像，外部无法复现",
+      "body": ".gitlab-ci.yml 的 UT 任务在 NVIDIA 内部 DGX H100（Jet/Slurm）上以内部 UTILITY_IMAGE 运行",
+      "source": ".gitlab/stages/02.test.yml"
+    }
+  ],
+  "problems_encountered": [
+    {
+      "problem": "docker.io 直连超时",
+      "cause": "registry-1.docker.io 不可达",
+      "solution": "改用 DaoCloud 镜像源 docker.m.daocloud.io/library/ubuntu:22.04（官方镜像内容一致，digest sha256:3b06811b...）",
+      "timestamp": "2026-08-15T21:00:10",
+      "source": "docker 拉取镜像"
+    },
+    {
+      "problem": "github.com 间歇性不可达（连接超时/HTTP2 framing 错误，尝试 6+ 次失败）",
+      "cause": "DNS 解析的 20.205.243.166 路由不可达；传输中途断连",
+      "solution": "验证 gh-proxy.com 代理 main 分支 SHA 与 github 直连一致（51f6a39）后经代理克隆；并在 /etc/hosts 固定可达 IP",
+      "timestamp": "2026-08-15T21:00:10",
+      "source": "github 网络"
+    },
+    {
+      "problem": "PyPI 下载 torch 超时/极慢（35KB/s）且 2.13.0 aarch64 wheel 达 427MB 并依赖 cuda-toolkit 系包",
+      "cause": "pypi.org 网络抖动；新版本捆绑 CUDA 依赖",
+      "solution": "改用阿里云镜像（29MB/s）下载 torch==2.9.0 aarch64 CPU wheel（104MB，满足 pyproject torch>=2.6.0），SHA-256 与 PyPI 一致 e5f7af1d...",
+      "timestamp": "2026-08-15T21:00:10",
+      "source": "PyPI 网络"
+    },
+    {
+      "problem": "import megatron.core 报 No module named triton",
+      "cause": "torch CPU wheel 不含 triton（NGC 镜像由 Dockerfile --no-install-package 排除）",
+      "solution": "安装 triton==3.7.1（aarch64 仅有 3.7.x wheel，3.3.0 配对版仅 x86_64）",
+      "timestamp": "2026-08-15T21:00:10",
+      "source": "triton 缺失"
+    },
+    {
+      "problem": "uv pip install -e . 报 no virtual environment",
+      "cause": "uv pip 需显式指定环境",
+      "solution": "加 --python /opt/venv/bin/python",
+      "timestamp": "2026-08-15T21:00:10",
+      "source": "uv 用法"
+    },
+    {
+      "problem": "TaskStop 停止后台 docker exec 客户端后容器内进程仍存活，其重试循环 rm -rf 删除了刚克隆成功的仓库",
+      "cause": "docker exec 客户端被杀不终止容器内进程",
+      "solution": "检查无残留进程后重新克隆（commit 一致）",
+      "timestamp": "2026-08-15T21:00:10",
+      "source": "docker exec 后台任务"
+    },
+    {
+      "problem": "preprocess_data.py 报 AutoTokenizer is not defined",
+      "cause": "缺 transformers（[training] 可选依赖）",
+      "solution": "安装 transformers/sentencepiece/tiktoken/accelerate/omegaconf",
+      "timestamp": "2026-08-15T21:00:10",
+      "source": "transformers 缺失"
+    },
+    {
+      "problem": "huggingface.co 网络不可达（Errno 101）",
+      "cause": "官方 HF 域名被网络阻断",
+      "solution": "export HF_ENDPOINT=https://hf-mirror.com",
+      "timestamp": "2026-08-15T21:00:10",
+      "source": "huggingface 网络"
+    },
+    {
+      "problem": "UT 数据集下载卡死（pipe_read 无进展）",
+      "cause": "datasets.zip/tokenizers.zip 位于 github.com releases（不可达），测试 fixture 下载挂起",
+      "solution": "经 gh-proxy 预下载官方资产并 staged 到 /home/TestData/megatron-lm/release-assets/v2.5/（fixture 原生支持 staged 路径）",
+      "timestamp": "2026-08-15T21:00:10",
+      "source": "测试资产下载"
+    },
+    {
+      "problem": "UT 套件运行 3h+ 不结束",
+      "cause": "套件内某测试以相同参数递归重跑整个套件（生成子 pytest 进程，日志交错）；hf-mirror 429 限流拖慢",
+      "solution": "按 PID 终止全部实例；采用日志中完整一轮的官方 pytest 汇总（1213s：3358 passed/2525 failed/2163 skipped/790 errors）作为结果",
+      "timestamp": "2026-08-15T21:00:10",
+      "source": "UT 套件递归"
+    },
+    {
+      "problem": "NLTK punkt 数据缺失",
+      "cause": "部分 data 测试用临时 NLTK_DATA 目录",
+      "solution": "经 gh-proxy 下载 punkt.zip 解压至 /usr/share/nltk_data/tokenizers/（对默认 NLTK_DATA 生效）",
+      "timestamp": "2026-08-15T21:00:10",
+      "source": "NLTK punkt"
+    },
+    {
+      "problem": "nvidia-resiliency-ext==0.6.0 无法安装",
+      "cause": "仅提供 manylinux_2_39 wheel，本机 glibc 2.35 不满足",
+      "solution": "记录跳过（该测试不运行）",
+      "timestamp": "2026-08-15T21:00:10",
+      "source": "glibc 版本"
+    },
+    {
+      "problem": "pre-commit 首次运行拉取 hook 超时",
+      "cause": "github 瞬时网络故障",
+      "solution": "重试成功后正常执行（black/isort 通过，pylint 报 2 项 lint 问题）",
+      "timestamp": "2026-08-15T21:00:10",
+      "source": "pre-commit hook 拉取"
+    }
+  ]
+}

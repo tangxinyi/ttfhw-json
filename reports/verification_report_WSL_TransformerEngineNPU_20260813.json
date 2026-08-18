@@ -1,0 +1,494 @@
+{
+  "metadata": {
+    "repo_url": "https://gitcode.com/Ascend/TransformerEngineNPU.git",
+    "branch": "main",
+    "start_time": "2026-08-13T20:22:48",
+    "end_time": "2026-08-13T21:24:37",
+    "duration_seconds": 3709,
+    "total_steps": 20,
+    "commit": "9ac2335ab14b622d04a8bcf9d52914f2bda78382"
+  },
+  "token_usage": {
+    "tool": "opencode",
+    "model": "deepseek-v4-flash[1m]",
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cache_hit_tokens": 0,
+    "cache_miss_tokens": 0
+  },
+  "machine_spec": {
+    "host_machine": {
+      "architecture": "aarch64",
+      "cpu_model": "Kunpeng-920 (aarch64)",
+      "cpu_cores": 256,
+      "memory": "1.7 TiB",
+      "disk": "2.0T 可用",
+      "docker_version": "29.5.2"
+    },
+    "container": {
+      "os": "openEuler 24.03 LTS",
+      "architecture": "aarch64",
+      "cpu_cores": 256,
+      "memory": "1.7 TiB",
+      "container_name": "ttfhw-transformerenginenpu-baseos-env"
+    },
+    "image_source": {
+      "type": "base_image",
+      "image_name": "hub.oepkgs.net/openeuler/openeuler:24.03-lts",
+      "selection_reason": "README 未指定 OS；关联仓 MegatronAdaptor CI 默认 openeuler24.03 且使用 yum/dnf，依据镜像策略 OS 选择规则 2（包管理方式 yum/dnf → openEuler）选定 openEuler 24.03 LTS",
+      "dependency_mapping": {
+        "from_dockerfile": "关联仓 MegatronAdaptor ci/docker/Dockerfile（目标仓无 Dockerfile）",
+        "from_readme": "README 版本表：CANN 9.0.0 / PyTorch 2.7.1 / torch_npu 26.0.0 / Python 3.10.x",
+        "mappings": [
+          {
+            "original": "yum install -y cmake curl findutils gcc gcc-c++ git jq make numactl-devel tar vim wget which (openeuler)",
+            "target": "dnf install -y 同名包（openEuler 同族，无需映射）",
+            "source": "MegatronAdaptor CI Dockerfile"
+          }
+        ]
+      }
+    }
+  },
+  "document_reading_summary": {
+    "architecture": {
+      "source": "README 未注明架构；本机 aarch64（CI 支持 x86_64 与 aarch64）",
+      "value": "aarch64（本机），文档支持 x86_64/aarch64"
+    },
+    "recommended_image": {
+      "source": "README 未指定 OS；关联仓 MegatronAdaptor CI 默认 openeuler24.03（yum/dnf）；按镜像策略规则 2 选 openEuler",
+      "value": "hub.oepkgs.net/openeuler/openeuler:24.03-lts"
+    },
+    "dockerfile_dependencies": {
+      "source": "目标仓无 Dockerfile；关联仓 MegatronAdaptor ci/docker/Dockerfile",
+      "value": [
+        {
+          "original": "yum install -y cmake curl findutils gcc gcc-c++ git jq make numactl-devel tar vim wget which",
+          "target_equivalent": "dnf install -y 同名包（openEuler 同族，无需映射）"
+        }
+      ]
+    },
+    "dependencies": {
+      "source": "README 版本表 + setup.py/pyproject.toml + 关联仓 CI Dockerfile",
+      "value": [
+        "CANN 9.0.0",
+        "PyTorch 2.7.1",
+        "torch_npu 26.0.0 (2.7.1.post6)",
+        "Python 3.10.x",
+        "torch>=2.1.0, packaging, nvdlfw-inspect (setup.py)",
+        "setuptools>=69.5.1, torch-npu, triton-ascend, einops (pyproject)",
+        "transformers==4.57.1, sentencepiece, pydantic, importlib-metadata (CI)"
+      ]
+    },
+    "build_commands": {
+      "source": "README 安装章节",
+      "value": "pip install -e TransformerEngineNPU"
+    },
+    "ut_commands": {
+      "source": "README 未写明；仓库 tests/pytorch 为 pytest 用例（conftest.py pytest 框架）",
+      "value": "python3.10 -m pytest (tests/pytorch 目录)"
+    },
+    "sample_commands": {
+      "source": "README 无样例章节；快速开始为 Megatron-LM 集成指引",
+      "value": "无（以 TE 核心模块 NPU 前向/反向验证）"
+    },
+    "special_dependencies": {
+      "source": "关联仓 CI Dockerfile/docker_build.sh",
+      "value": [
+        "triton-ascend wheel: https://gitcode.com/Ascend/triton-ascend/releases/download/v3.2.1",
+        "pip index (aarch64): https://repo.huaweicloud.com/repository/pypi/simple",
+        "CANN 9.0.0: https://ascend-repo.obs.cn-east-2.myhuaweicloud.com/CANN/CANN 9.0.0/"
+      ]
+    }
+  },
+  "execution_log": [
+    {
+      "timestamp": "2026-08-13T20:22:51",
+      "step": "environment_selection",
+      "action": "确认验证容器运行环境：用户选择本地 WSL（容器直接在当前宿主机用 docker 运行）",
+      "command": "AskUserQuestion",
+      "output": "本地 WSL",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 0,
+      "result": "本地 WSL",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-13T20:25:14",
+      "step": "document_reading",
+      "action": "克隆目标仓库（main@71af06ba）并阅读 README、setup.py、pyproject.toml",
+      "command": "git clone https://gitcode.com/Ascend/TransformerEngineNPU.git && cat README.md setup.py pyproject.toml",
+      "output": "README：pip install -e 安装；版本表 CANN9.0.0/PyTorch2.7.1/torch_npu26.0.0/Python3.10.x；未指定 OS；无 Dockerfile/devcontainer/CI/样例",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 30,
+      "result": "README：pip install -e 安装；版本表 CANN9.0.0/PyTorch2.7.1/torch_npu26.0.0/Python3.10.x；未指定 OS；无 Dockerfile/devcontainer/CI/样例",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-13T20:25:14",
+      "step": "document_reading",
+      "action": "阅读 README 外部关联链接 MegatronAdaptor（core_r0.17.0），完成外部文档闭包",
+      "command": "git clone -b core_r0.17.0 --depth 1 https://gitcode.com/Ascend/MegatronAdaptor.git && cat README.md",
+      "output": "MegatronAdaptor README 版本表与目标仓一致；其 ci/docker/ 下存在 Dockerfile 与 docker_build.sh（CI 内部构建脚本）",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 30,
+      "result": "MegatronAdaptor README 版本表与目标仓一致；其 ci/docker/ 下存在 Dockerfile 与 docker_build.sh（CI 内部构建脚本）",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-13T20:25:14",
+      "step": "document_reading",
+      "action": "审查关联仓 CI Dockerfile 构建链（等价路径条件 2 审查）",
+      "command": "cat ci/docker/Dockerfile ci/docker/docker_build.sh ci/docker/configure_yum_repo.sh",
+      "output": "构建链底层 FROM 为预构建 CANN 镜像（ascendhub/cann:9.1.0-beta.3-910b-openeuler24.03-py3.12），非基础 OS 官方镜像，违反条件 2，仅作依赖提取参考",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 30,
+      "result": "构建链底层 FROM 为预构建 CANN 镜像（ascendhub/cann:9.1.0-beta.3-910b-openeuler24.03-py3.12），非基础 OS 官方镜像，违反条件 2，仅作依赖提取参考",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-13T20:25:14",
+      "step": "image_selection",
+      "action": "锁定基础 OS 与环境构建方式（本步骤唯一决策点）",
+      "command": "",
+      "output": "build_method=manual, OS=openEuler 24.03 LTS",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 0,
+      "details": {
+        "build_method": "manual",
+        "script_url": "",
+        "reason": "目标仓无 Dockerfile/devcontainer/CI 工作流，README 无镜像构建脚本；关联仓 MegatronAdaptor CI Dockerfile 底层 FROM 为预构建 CANN 镜像（ascendhub/cann:9.1.0-beta.3-910b-openeuler24.03-py3.12），不满足等价路径条件 2（基础 OS 底层），文档闭包中不存在合规环境构建脚本，故 manual",
+        "base_os": "hub.oepkgs.net/openeuler/openeuler:24.03-lts",
+        "os_selection_reason": "README 未指定 OS；关联仓 CI 使用 yum 且默认 openeuler24.03，依据镜像策略 OS 选择规则 2（包管理方式 yum/dnf → openEuler）"
+      },
+      "result": "build_method=manual, OS=openEuler 24.03 LTS"
+    },
+    {
+      "timestamp": "2026-08-13T20:50:23",
+      "step": "static_analysis_scan",
+      "action": "扫描 pre-commit 与 lint-runner 配置",
+      "command": "ls .pre-commit-config.yaml .lint-runner* .lintrunner*",
+      "output": "存在 .pre-commit-config.yaml（configured=true）；无 lint-runner 配置（configured=false）",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 5,
+      "result": "存在 .pre-commit-config.yaml（configured=true）；无 lint-runner 配置（configured=false）",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-13T20:50:23",
+      "step": "static_analysis_execution",
+      "action": "pip install pre-commit 4.6.0；从 218 个 Git 跟踪文件随机抽取 10 个执行 pre-commit run --files",
+      "command": "pre-commit run --files <10 个随机文件>",
+      "output": "passed: trailing-whitespace/end-of-file-fixer/check-added-large-files/check-merge-conflict/detect-private-key/ruff-format/codespell/bandit/typos；skipped: check-yaml/check-json/clang-format；failed: ruff-check(E731 jit.py:62)、pylint(C3001 jit.py:62) 为仓库代码问题；gitleaks 缺二进制失败→下载 v8.20.0(arm64) 后重跑通过",
+      "error": "ruff-check E731 / pylint C3001（仓库代码 transformer_engine/pytorch/jit.py:62 lambda 赋值，非环境问题）",
+      "success": true,
+      "returncode": 1,
+      "duration_seconds": 420,
+      "result": "passed: trailing-whitespace/end-of-file-fixer/check-added-large-files/check-merge-conflict/detect-private-key/ruff-format/codespell/bandit/typos；skipped: check-yaml/check-json/clang-format；failed: ruf",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-13T20:50:28",
+      "step": "devcontainer_scan",
+      "action": "扫描仓库 devcontainer 配置",
+      "command": "ls .devcontainer && find . -name devcontainer.json -o -name .devcontainer.json",
+      "output": "无 .devcontainer/ 目录，无 devcontainer.json 配置文件，devcontainer 能力=未配置",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 5,
+      "result": "无 .devcontainer/ 目录，无 devcontainer.json 配置文件，devcontainer 能力=未配置",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-13T20:51:01",
+      "step": "container_setup",
+      "action": "复用同日在用容器（openEuler 24.03 LTS 基础镜像现场构建，已挂载 NPU 内核驱动）并核验环境",
+      "command": "docker inspect ttfhw-transformerenginenpu-baseos-env && docker exec ... cat /etc/os-release && python3.10 --version",
+      "output": "openEuler 24.03 LTS aarch64；Python 3.10.13；torch 2.7.1；torch_npu 2.7.1.post6；CANN 9.0.0；gcc 12.3.1/cmake 3.27.9；/workspace 待克隆目标仓",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 30,
+      "result": "openEuler 24.03 LTS aarch64；Python 3.10.13；torch 2.7.1；torch_npu 2.7.1.post6；CANN 9.0.0；gcc 12.3.1/cmake 3.27.9；/workspace 待克隆目标仓",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-13T20:51:01",
+      "step": "dependency_installation",
+      "action": "检查 py3.10 环境 pip 依赖缺口：缺 triton-ascend(已下载wheel)、packaging、nvdlfw-inspect、einops、sentencepiece、pydantic、importlib-metadata、transformers",
+      "command": "/usr/local/python310/bin/python3.10 -m pip list",
+      "output": "已装 torch 2.7.1/torch_npu 2.7.1.post6/setuptools 65.5.0/pip 23.0.1；/tmp/triton_ascend-3.2.1-cp310-cp310-...whl 已下载待安装",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 10,
+      "result": "已装 torch 2.7.1/torch_npu 2.7.1.post6/setuptools 65.5.0/pip 23.0.1；/tmp/triton_ascend-3.2.1-cp310-cp310-...whl 已下载待安装",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-13T21:03:18",
+      "step": "dependency_installation",
+      "action": "安装剩余 pip 依赖：triton-ascend 3.2.1 wheel、packaging>=26.2、einops、pydantic、importlib-metadata、sentencepiece、nvdlfw-inspect、transformers==4.57.1、setuptools>=69.5.1",
+      "command": "python3.10 -m pip install /tmp/triton_ascend-3.2.1-*.whl packaging einops pydantic importlib-metadata sentencepiece nvdlfw-inspect transformers==4.57.1 setuptools",
+      "output": "triton 3.2.0 (triton-ascend) / torch 2.7.1 / torch_npu 2.7.1.post6 / transformers 4.57.1 / einops 0.8.2 / setuptools 84.0.0",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 300,
+      "result": "triton 3.2.0 (triton-ascend) / torch 2.7.1 / torch_npu 2.7.1.post6 / transformers 4.57.1 / einops 0.8.2 / setuptools 84.0.0",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-13T21:03:18",
+      "step": "dependency_installation",
+      "action": "排查 torch_npu 加载失败（libhccl.so 缺失）：定位到 CANN 9.0.0 中 libhccl.so 由 910b-ops 包内 cann-hccl 组件提供，容器仅装了 toolkit 组件导致缺失",
+      "command": "find /usr/local/Ascend -name libhccl.so; 提取 Ascend-cann-910b-ops 包检查组件; md5 对比宿主机",
+      "output": "确认 cann-hccl_9.0.0_linux-aarch64.run 含 libhccl.so（md5 cb2da46b92 与宿主机一致）",
+      "error": "ImportError: libhccl.so: cannot open shared object file",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 1800,
+      "result": "确认 cann-hccl_9.0.0_linux-aarch64.run 含 libhccl.so（md5 cb2da46b92 与宿主机一致）",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-13T21:03:18",
+      "step": "dependency_installation",
+      "action": "在容器内安装 cann-hccl 组件（官方 OBS 包 Ascend-cann-910b-ops 内组件，从官方源安装到容器）",
+      "command": "./cann-hccl_9.0.0_linux-aarch64.run --full --quiet --install-path=/usr/local/Ascend",
+      "output": "Hccl package installed successfully; libhccl.so 就位; source set_env.sh 后 import torch OK 2.7.1+cpu",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 60,
+      "result": "Hccl package installed successfully; libhccl.so 就位; source set_env.sh 后 import torch OK 2.7.1+cpu",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-13T21:03:40",
+      "step": "container_setup",
+      "action": "容器内 git clone 目标仓库到 /workspace/TransformerEngineNPU（main 最新 HEAD）",
+      "command": "git clone https://gitcode.com/Ascend/TransformerEngineNPU.git",
+      "output": "HEAD=9ac2335 fix(append): Completes FP8 padding/unpadding parameters（远程 main 已从 71af06b 推进到 9ac2335）",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 120,
+      "result": "HEAD=9ac2335 fix(append): Completes FP8 padding/unpadding parameters（远程 main 已从 71af06b 推进到 9ac2335）",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-13T21:06:42",
+      "step": "build",
+      "action": "执行文档构建命令 pip install -e . （构建命令来源：README 安装章节）",
+      "command": "time /usr/local/python310/bin/python3.10 -m pip install -e .",
+      "output": "Successfully built transformer_engine; installed transformer_engine-2.13.0 (editable); 冒烟测试 import OK",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 152,
+      "result": "Successfully built transformer_engine; installed transformer_engine-2.13.0 (editable); 冒烟测试 import OK",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-13T21:11:48",
+      "step": "ut",
+      "action": "运行 sanity 测试首轮失败：GE 图引擎初始化失败（FEOpsKernelInfoStore 初始化失败），定位为容器缺少 910b-ops 算子包",
+      "command": "pytest test_sanity.py -x",
+      "output": "FAILED test_sanity_linear: RuntimeError AclSetCompileopt ACL_PRECISION_MODE error 500001 / FEOpsKernelInfoStore Initialize failed / GEInitializeV2 failed",
+      "error": "CANN GE 初始化失败：ops kernel manager 初始化失败（缺 910b-ops 算子包）",
+      "success": false,
+      "returncode": 1,
+      "duration_seconds": 20,
+      "result": "FAILED test_sanity_linear: RuntimeError AclSetCompileopt ACL_PRECISION_MODE error 500001 / FEOpsKernelInfoStore Initialize failed / GEInitializeV2 failed",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-13T21:11:48",
+      "step": "dependency_installation",
+      "action": "从华为官方 OBS 下载并安装 Ascend-cann-910b-ops_9.0.0（2.3GB，md5 c6158d29 与宿主机缓存一致）",
+      "command": "wget OBS://Ascend-cann-910b-ops_9.0.0_linux-aarch64.run && ./Ascend-cann-910b-ops_9.0.0_linux-aarch64.run --install --quiet --install-path=/usr/local/Ascend",
+      "output": "ops_910b: Ascend-cann-910b-ops_9.0.0 install success, installed in /usr/local/Ascend",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 900,
+      "result": "ops_910b: Ascend-cann-910b-ops_9.0.0 install success, installed in /usr/local/Ascend",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-13T21:11:48",
+      "step": "ut",
+      "action": "重跑 sanity 测试验证修复",
+      "command": "pytest test_sanity.py",
+      "output": "170 passed, 19 skipped in 11.85s",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 17,
+      "result": "170 passed, 19 skipped in 11.85s",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-13T21:21:48",
+      "step": "ut",
+      "action": "执行完整 UT 套件（4492 用例，含 tests_extend）",
+      "command": "time python3.10 -m pytest -q --no-header",
+      "output": "3141 passed, 1351 skipped, 0 failed in 554.86s (0:09:14)；skipped 为 FP8/MXFP8 硬件不支持用例（Ascend 950+ 才支持，当前 910B3）",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 555,
+      "result": "3141 passed, 1351 skipped, 0 failed in 554.86s (0:09:14)；skipped 为 FP8/MXFP8 硬件不支持用例（Ascend 950+ 才支持，当前 910B3）",
+      "details": {}
+    },
+    {
+      "timestamp": "2026-08-13T21:24:30",
+      "step": "sample",
+      "action": "NPU 功能样例验证：Linear/LayerNorm/LayerNormLinear/GroupedLinear/RMSNorm/LayerNormMLP 前向反向（仓库无 examples 目录，README 快速开始为 Megatron-LM 集成指引）",
+      "command": "python3.10 -c \"TE 模块 NPU 前向/反向验证\"",
+      "output": "6/6 全部通过（Linear/LayerNorm/LayerNormLinear/GroupedLinear-MoE/RMSNorm/LayerNormMLP）",
+      "error": "",
+      "success": true,
+      "returncode": 0,
+      "duration_seconds": 14,
+      "result": "6/6 全部通过（Linear/LayerNorm/LayerNormLinear/GroupedLinear-MoE/RMSNorm/LayerNormMLP）",
+      "details": {}
+    }
+  ],
+  "final_results": {
+    "static_analysis": {
+      "enabled": true,
+      "summary": "pre-commit 已配置并执行：6 个 hook 通过、3 个 skipped（随机文件未匹配）、2 个失败（ruff-check E731、pylint C3001，均为仓库代码 transformer_engine/pytorch/jit.py:62 lambda 赋值问题，非环境问题）、gitleaks 首次缺二进制失败，下载 v8.20.0 后重跑通过；lint-runner 未配置",
+      "pre_commit": {
+        "configured": true,
+        "config_file": ".pre-commit-config.yaml",
+        "status": "failed",
+        "duration_seconds": 420
+      },
+      "lint_runner": {
+        "configured": false,
+        "config_file": null
+      }
+    },
+    "devcontainer": {
+      "enabled": false,
+      "config_dir": "无",
+      "config_files": [],
+      "original_base_image": "unknown",
+      "used_image": "unknown",
+      "summary": "仓库不存在 .devcontainer/ 目录，无 devcontainer.json / .devcontainer.json 配置文件，不具备 devcontainer 开发容器能力"
+    },
+    "build": {
+      "status": "success",
+      "duration_seconds": 152,
+      "artifacts": [
+        {
+          "name": "transformer_engine-2.13.0-0.editable-py3-none-any.whl",
+          "path": "/workspace/TransformerEngineNPU (pip install -e)",
+          "size": "9884 bytes",
+          "type": "wheel"
+        }
+      ],
+      "notes": "构建命令 pip install -e .（README 安装章节）；Python 3.10.13 + torch 2.7.1；冒烟测试 import transformer_engine OK"
+    },
+    "ut": {
+      "status": "success",
+      "duration_seconds": 555,
+      "total": 4492,
+      "passed": 3141,
+      "failed": 0,
+      "skipped": 1351,
+      "failures": []
+    },
+    "sample": {
+      "status": "success",
+      "duration_seconds": 14,
+      "results": [
+        {
+          "sample_name": "Linear fwd/bwd (NPU)",
+          "execution_status": "passed",
+          "output_summary": "fwd (8,32) f32; w.grad OK",
+          "execution_time": "14s"
+        },
+        {
+          "sample_name": "LayerNorm (NPU)",
+          "execution_status": "passed",
+          "output_summary": "fwd (8,32) OK",
+          "execution_time": "14s"
+        },
+        {
+          "sample_name": "LayerNormLinear (NPU)",
+          "execution_status": "passed",
+          "output_summary": "fwd (8,16) OK",
+          "execution_time": "14s"
+        },
+        {
+          "sample_name": "GroupedLinear MoE (NPU)",
+          "execution_status": "passed",
+          "output_summary": "fwd (16,8); weight0/1.grad OK",
+          "execution_time": "14s"
+        },
+        {
+          "sample_name": "RMSNorm (NPU)",
+          "execution_status": "passed",
+          "output_summary": "fwd (8,32) OK",
+          "execution_time": "14s"
+        },
+        {
+          "sample_name": "LayerNormMLP (NPU)",
+          "execution_status": "passed",
+          "output_summary": "fwd (8,32); bwd OK",
+          "execution_time": "14s"
+        }
+      ],
+      "reason": "仓库无 examples/samples 目录；README 快速开始为 Megatron-LM 集成指引（需 Megatron-LM+MegatronAdaptor 全栈）；以 TE 核心模块 NPU 前向/反向验证功能"
+    }
+  },
+  "documentation_gaps": [
+    {
+      "time": "2026-08-13T21:26:26",
+      "title": "README 未提供单元测试执行命令",
+      "body": "README 仅说明 pip install -e 安装方式，未给出 UT 命令；测试用例位于 tests/pytorch（pytest 框架），需开发者自行推断执行方式",
+      "source": "README.md 安装/快速开始章节"
+    },
+    {
+      "time": "2026-08-13T21:26:26",
+      "title": "README 未提供样例/示例运行方式",
+      "body": "README 无 examples 章节，快速开始为 Megatron-LM 集成指引（需 Megatron-LM + MegatronAdaptor 全栈），无独立可运行的样例",
+      "source": "README.md 快速开始章节"
+    },
+    {
+      "time": "2026-08-13T21:26:26",
+      "title": "README 未指明 CANN 9.0.0 需安装 910b-ops 算子包（含 cann-hccl 组件）",
+      "body": "版本表列出 CANN 9.0.0，但未说明 torch_npu 正常加载需安装 Ascend-cann-910b-ops（提供 libhccl.so 的 cann-hccl 组件）；仅安装 toolkit 时 torch_npu 报 libhccl.so 缺失，GE 图引擎初始化失败",
+      "source": "README.md 版本说明章节"
+    }
+  ],
+  "problems_encountered": [
+    {
+      "timestamp": "2026-08-13T20:22:48",
+      "problem": "CANN 9.0.0 toolkit 安装后 torch_npu 报 ImportError: libhccl.so 缺失——CANN 9.0.0 中 libhccl.so 不再由 toolkit/hcomm 组件提供，改由 910b-ops 包内的独立 cann-hccl 组件提供",
+      "solution": "从官方 OBS 包 Ascend-cann-910b-ops_9.0.0 提取 cann-hccl_9.0.0_linux-aarch64.run 并安装到容器（--full --quiet --install-path=/usr/local/Ascend），md5 校验与宿主机一致；安装后 torch_npu 正常加载",
+      "source": "验证环境搭建/UT 执行过程"
+    },
+    {
+      "timestamp": "2026-08-13T20:22:48",
+      "problem": "首次运行 UT 时 CANN GE 图引擎初始化失败（FEOpsKernelInfoStore: Initialize custom and builtin sub-information library failed, GEInitializeV2 failed）——容器只装了 CANN toolkit，缺少 910b-ops 算子包，GE 无法加载算子内核信息库",
+      "solution": "从华为官方 OBS 下载 Ascend-cann-910b-ops_9.0.0_linux-aarch64.run（2.3GB）并安装到容器（--install --quiet --install-path=/usr/local/Ascend），md5 校验 c6158d29 与官方缓存一致；重跑 sanity 测试 170 passed",
+      "source": "验证环境搭建/UT 执行过程"
+    }
+  ]
+}
